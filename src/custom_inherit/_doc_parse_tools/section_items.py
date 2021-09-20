@@ -113,20 +113,25 @@ def merge(child_func, section_name, prnt_sec, child_sec, merge_within_sections, 
         body = prnt_sec if not child_sec else child_sec
 
     if section_name in _ARGS_SECTION_NAMES:
-        args, varargs, varkw = getfullargspec(child_func)[:3]
+        args, varargs, varkw, _, kwonlyargs = getfullargspec(child_func)[:5]
 
         if "self" in args:
             args.remove("self")
 
-        all_args = set(args)
+        if varargs is not None:
+            args += ["*" + varargs]
 
-        for number, other_args in enumerate((varargs, varkw)):
-            if other_args is not None:
-                all_args.add("{}{}".format("*"*(number+1), other_args))
+        args += kwonlyargs
 
-        # Remove the documented arguments that are not actual arguments.
-        for arg in set(body) - all_args:
-            del body[arg]
+        if varkw is not None:
+            args += ["**" + varkw]
+
+        ordered_body = OrderedDict()
+        for arg in args:
+            if arg in body:
+                ordered_body[arg] = body[arg]
+
+        body = ordered_body
 
     body = _render(body, style)
     return body
