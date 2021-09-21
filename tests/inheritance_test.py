@@ -5,6 +5,52 @@ from custom_inherit import DocInheritMeta
 
 
 @pytest.mark.parametrize("style", ["numpy_with_merge", "numpy_napoleon_with_merge"])
+def test_inheritance_numpy_with_merge_styles_0(style):
+    @add_metaclass(DocInheritMeta(style=style))
+    class Parent(object):
+        """Parent."""
+
+        def meth(self, x, *args, y=None, **kwargs):
+            """
+            Parameters
+            ----------
+            x: int
+            *args: int
+            y: float
+            **kwargs: int
+                If None, foo.
+            """
+
+    class Child(Parent):
+        """Child."""
+
+        def meth(self, xx, x, *args, yy=None, y=None, **kwargs):
+            """
+            Parameters
+            ----------
+            xx: int
+            yy: float
+            """
+
+    excepted = """
+Parameters
+----------
+xx: int
+x: int
+*args: int
+yy: float
+y: float
+**kwargs: int
+    If None, foo.
+"""
+
+    assert (
+        Child.meth.__doc__
+        == excepted.strip("\n")
+    )
+
+
+@pytest.mark.parametrize("style", ["numpy_with_merge", "numpy_napoleon_with_merge"])
 def test_inheritance_numpy_with_merge_styles(style):
     @add_metaclass(DocInheritMeta(style=style))
     class Parent(object):
@@ -159,7 +205,7 @@ def test_inheritance_google_with_merge_style():
     """
     Testing C.
     
-    Attributes:
+    Parameters:
         a :
             priority description
             of a
