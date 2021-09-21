@@ -82,8 +82,10 @@ def parse(doc_sections):
     for section_name in SECTION_NAMES:
         section_content = doc_sections[section_name]
         if section_content:
+            # inspect.cleandoc indentation determination starts from the second line,
+            # so we prepend an empty line.
             doc_sections[section_name] = OrderedDict(
-                _RE_PATTERN_ITEMS.findall(inspect.cleandoc(section_content))
+                _RE_PATTERN_ITEMS.findall(inspect.cleandoc("\n"+section_content))
             )
 
 
