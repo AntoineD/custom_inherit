@@ -3,6 +3,42 @@ from six import add_metaclass
 
 from custom_inherit import DocInheritMeta
 
+@pytest.mark.parametrize("style", ["google_with_merge"])
+def test_parse_section_item(style):
+    @add_metaclass(DocInheritMeta(style=style))
+    class Parent(object):
+        """Parent."""
+
+        def meth(
+                self,
+                x,
+            ):
+            """
+            Args:
+                x: X
+                    If None, foo.
+            """
+
+    class Child(Parent):
+        """Child."""
+
+        def meth(
+            self,
+            x,
+        ):
+            pass
+
+    excepted = """
+Parameters:
+    x: X
+        If None, foo.
+"""
+
+    assert (
+        Child.meth.__doc__
+        == excepted.strip("\n")
+    )
+
 
 @pytest.mark.parametrize("style", ["numpy_with_merge", "numpy_napoleon_with_merge"])
 def test_inheritance_numpy_with_merge_styles_0(style):
